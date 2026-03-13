@@ -49,4 +49,4 @@ class AttentionLayer(nn.Module):
         V = attention @ V
         V = V.transpose(1, 2).contiguous().view(batch_size, seq_len, -1)
 
-        return V
+        return V, Q, K
