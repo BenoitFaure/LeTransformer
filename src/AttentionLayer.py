@@ -8,7 +8,7 @@ class AttentionLayer(nn.Module):
     Multihead attention layer
     """
 
-    def __init__(self, n_in: int, n_out: int, n_heads: int):
+    def __init__(self, n_in: int, n_out: int, n_heads: int, mask_forward_attention: bool = False, max_seq_len: int = 512):
         """
             Multihead attention layer.
 
@@ -20,8 +20,17 @@ class AttentionLayer(nn.Module):
                 output dimension size per head
             n_heads: int
                 number of attention heads
+            mask_forward_attention: bool
+                whether to mask forward attention
+            max_seq_len: int
+                maximum_seq_len to expect
         """
         super().__init__()
+        
+        self.mask_forward_attention = mask_forward_attention
+        if self.mask_forward_attention:
+            attention_mask = torch.triu(torch.ones(max_seq_len, max_seq_len), diagonal=1).bool()
+            self.register_buffer("attention_mask", attention_mask)
 
         self.W_Q = nn.Parameter(torch.empty(n_heads, n_in, n_out))
         self.W_K = nn.Parameter(torch.empty(n_heads, n_in, n_out))
@@ -35,7 +44,7 @@ class AttentionLayer(nn.Module):
         scaling_param = torch.as_tensor(scaling_param)
         self.register_buffer("scaling_param", scaling_param)
 
-    def forward(self, values: torch.Tensor):
+    def forward(self, values: torch.Tensor) -> torch.Tensor:
         batch_size, seq_len, _ = values.size()
 
         Q = torch.einsum('bsi, hio -> bhso', values, self.W_Q)
@@ -44,6 +53,9 @@ class AttentionLayer(nn.Module):
 
         attention = Q @ K.transpose(-2, -1)
         attention = attention / self.scaling_param
+
+        if self.mask_forward_attention:
+            attention = torch.masked_fill(attention, self.attention_mask[:seq_len, :seq_len], float('-inf'))
         attention = torch.softmax(attention, dim=-1)
 
         V = attention @ V
