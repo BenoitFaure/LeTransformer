@@ -9,6 +9,7 @@ from .EncoderBlock import EncoderBlock
 from .EncoderLayer import EncoderLayer
 from .DecoderBlock import DecoderBlock
 from .DecoderLayer import DecoderLayer
+from .Transformer import Transformer
 
 __all__ = [
     "ProjectionLayer",
@@ -18,4 +19,5 @@ __all__ = [
     "EncoderLayer",
     "DecoderBlock",
     "DecoderLayer",
+    "Transfomer"
 ]

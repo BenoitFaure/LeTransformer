@@ -40,7 +40,7 @@ class EncoderLayer(nn.Module):
         self.layer_norm_fcn = nn.LayerNorm(layer_dimension)
         
         nn.init.kaiming_uniform_(self.fully_connected[0].weight)
-        nn.init.xavier_uniform_(self.fully_connected[1].weight)
+        nn.init.xavier_uniform_(self.fully_connected[2].weight)
     
     def forward(self, values: torch.Tensor):
 
