@@ -1,8 +1,6 @@
 import torch
-from pathlib import Path
 
 from src import Transformer
-from train import CharTokenizer
 
 # --- 1. REBUILD TOKENIZER ---
 class CharTokenizer:

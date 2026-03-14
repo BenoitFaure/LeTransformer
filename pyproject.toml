@@ -9,4 +9,8 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["src"]
+packages = ["src", "scripts"]
+
+[project.scripts]
+train = "scripts.train:main"
+inference = "scripts.inference:main"
