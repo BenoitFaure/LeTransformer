@@ -5,14 +5,12 @@ from torch import nn
 
 class PositionEncoder(nn.Module):
     """
-        First encoding of transformer (Encoding + Position tags)
+        Position encode a sequence
     """
 
-    def __init__(self, n_dict: int, n_model: int, ctx_window: int):
+    def __init__(self, n_model: int, ctx_window: int):
         """
-            Layer:
-                1] Project from dictionary space to embedding space
-                2] Adding sinusoidal positional encodings
+            Add sinusoidal positional encodings
 
             Parameters
             ----------
@@ -22,15 +20,7 @@ class PositionEncoder(nn.Module):
                 Dimension of 1st layer of model
         """
         super().__init__()
-
-        # Projection
-        self.W_1 = nn.Parameter(torch.empty(n_dict, n_model))
-        self.b_1 = nn.Parameter(torch.empty(n_model))
-
-        nn.init.xavier_uniform_(self.W_1)
-        nn.init.constant_(self.b_1, 0)
         
-        # Positional Encoddings
         embedding_axis = torch.arange(0, n_model, 2).float()
         embedding_axis = torch.exp(embedding_axis * (-math.log(10000.0) / n_model))
 
@@ -51,11 +41,6 @@ class PositionEncoder(nn.Module):
     
     def forward(self, values: torch.Tensor):
 
-        # Projection
-        values = values @ self.W_1 + self.b_1
-        values = values * self.scaling_factor
-
-        # Position Embeddings
         ctx_length = values.size(-2)
         values = values + self.pos_embeddings[:, :ctx_length, :]
 
