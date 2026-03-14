@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from AttentionLayer import AttentionLayer
+from .AttentionLayer import AttentionLayer
 
 class EncoderLayer(nn.Module):
     """
@@ -41,10 +41,10 @@ class EncoderLayer(nn.Module):
     
     def forward(self, values: torch.Tensor):
 
-        context, Q, K = self.multi_head_attention(values)
+        context = self.multi_head_attention(values)
         x = self.layer_norm_mha(context + values)
 
         fcn_out = self.fully_connected(x)
         x = self.layer_norm_fcn(fcn_out + x)
 
-        return x, Q, K
+        return x

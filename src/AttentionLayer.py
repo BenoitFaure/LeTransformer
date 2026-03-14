@@ -1,3 +1,5 @@
+from typing import Optional
+
 import math
 
 import torch
@@ -5,7 +7,7 @@ from torch import nn
 
 class AttentionLayer(nn.Module):
     """
-    Multihead attention layer
+        Multihead attention layer. Incorporates the possibility of masking forward attention.
     """
 
     def __init__(self, n_in: int, n_out: int, n_heads: int, mask_forward_attention: bool = False, max_seq_len: int = 512):
@@ -44,12 +46,15 @@ class AttentionLayer(nn.Module):
         scaling_param = torch.as_tensor(scaling_param)
         self.register_buffer("scaling_param", scaling_param)
 
-    def forward(self, values: torch.Tensor) -> torch.Tensor:
+    def forward(self, values: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
         batch_size, seq_len, _ = values.size()
 
+        if context is None:
+            context = values
+
         Q = torch.einsum('bsi, hio -> bhso', values, self.W_Q)
-        K = torch.einsum('bsi, hio -> bhso', values, self.W_K)
-        V = torch.einsum('bsi, hio -> bhso', values, self.W_V)
+        K = torch.einsum('bsi, hio -> bhso', context, self.W_K)
+        V = torch.einsum('bsi, hio -> bhso', context, self.W_V)
 
         attention = Q @ K.transpose(-2, -1)
         attention = attention / self.scaling_param
@@ -61,4 +66,4 @@ class AttentionLayer(nn.Module):
         V = attention @ V
         V = V.transpose(1, 2).contiguous().view(batch_size, seq_len, -1)
 
-        return V, Q, K
+        return V
