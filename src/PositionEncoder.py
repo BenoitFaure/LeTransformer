@@ -14,10 +14,10 @@ class PositionEncoder(nn.Module):
 
             Parameters
             ----------
-            n_dict: int
-                Dimension of dictionary
             n_model: int
                 Dimension of 1st layer of model
+            ctx_window: int
+                Max length of the sequence
         """
         super().__init__()
         

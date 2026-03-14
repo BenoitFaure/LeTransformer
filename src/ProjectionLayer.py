@@ -27,7 +27,7 @@ class ProjectionLayer(nn.Module):
 
         nn.init.xavier_uniform_(self.embeddings.weight)
 
-        scaling_factor = torch.sqrt(torch.Tensor(n_model))
+        scaling_factor = torch.sqrt(torch.tensor(float(n_model)))
         self.register_buffer("scaling_factor", scaling_factor)
     
     def project_to_embeddings(self, values: torch.Tensor):
